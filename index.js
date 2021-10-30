@@ -29,6 +29,7 @@ client.connect(err => {
     res.send(result);
   });
 
+  // get destination
   app.get("/addDestination", async (req, res) => {
     const result = await travelCollection.find({}).toArray();
     res.send(result);
