@@ -1,6 +1,6 @@
 const express = require("express");
-const { MongoClient } = require('mongodb');
-const bodyParser = require('body-parser');
+const { MongoClient } = require("mongodb");
+const bodyParser = require("body-parser");
 const ObjectId = require("mongodb").ObjectId;
 const cors = require("cors");
 require("dotenv").config();
@@ -17,13 +17,16 @@ app.get("/", (req, res) => {
 });
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.wozmo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+const client = new MongoClient(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
-client.connect(err => {
+client.connect((err) => {
   const travelCollection = client.db("travel").collection("destination");
   const orderCollection = client.db("order").collection("destination");
 
-  // add destination 
+  // add destination
   app.post("/addDestination", async (req, res) => {
     // console.log(req.body);
     const result = await travelCollection.insertOne(req.body);
@@ -39,17 +42,19 @@ client.connect(err => {
   // get destination
   app.get("/destination/:id", async (req, res) => {
     console.log(req.params.id);
-    const result = await travelCollection.find({
-      _id: ObjectId(req.params.id),
-    }).toArray();
+    const result = await travelCollection
+      .find({
+        _id: ObjectId(req.params.id),
+      })
+      .toArray();
     res.send(result);
   });
 
-  // post order 
-  app.get('/orders', async(req, res) => {
+  // post order
+  app.get("/orders", async (req, res) => {
     const result = await orderCollection.find({}).toArray();
-    res.send(result)
-  })
+    res.send(result);
+  });
 
   // post order
   app.post("/orders/:id", async (req, res) => {
@@ -75,14 +80,21 @@ client.connect(err => {
       });
   });
 
-   // delete data from cart delete api
-   app.delete("/delete/:id", async (req, res) => {
+  // delete data from cart delete api
+  app.delete("/delete/:id", async (req, res) => {
     const id = req.params.id;
     const query = { _id: ObjectId(id) };
     const result = await orderCollection.deleteOne(query);
     res.json(result);
-});
+  });
 
+  // get by email
+  app.get("/orders/:email", async (req, res) => {
+    const result = await orderCollection.find({
+      email: req.params.email,
+    }).toArray();
+    res.send(result);
+  });
 
   // client.close();
 });
