@@ -46,12 +46,44 @@ client.connect(err => {
   });
 
   // post order 
-  app.post('/orders', async(req, res) => {
-    const order = req.body;
-    const result = await orderCollection.insertOne(order);
+  app.get('/orders', async(req, res) => {
+    const result = await orderCollection.find({}).toArray();
     res.send(result)
   })
-  
+
+  // post order
+  app.post("/orders/:id", async (req, res) => {
+    // console.log(req.body.id);
+    const result = await orderCollection.insertOne(req.body);
+    res.send(result);
+  });
+
+  //place order
+  app.post("/orders/:id", async (req, res) => {
+    const id = req.params.id;
+    const updatedName = req.body;
+    const filter = { _id: ObjectId(id) };
+
+    orderCollection
+      .insertOne(filter, {
+        $set: {
+          name: updatedName.name,
+        },
+      })
+      .then((result) => {
+        res.send(result);
+      });
+  });
+
+   // delete data from cart delete api
+   app.delete("/delete/:id", async (req, res) => {
+    const id = req.params.id;
+    const query = { _id: ObjectId(id) };
+    const result = await orderCollection.deleteOne(query);
+    res.json(result);
+});
+
+
   // client.close();
 });
 
